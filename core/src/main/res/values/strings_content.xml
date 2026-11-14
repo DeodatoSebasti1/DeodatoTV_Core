@@ -340,13 +340,13 @@
     <!-- Translators: Confirmation copy shown before removing a manual M3U category override. -->
     <string name="content_m3u_category_auto_confirm">Use automatic classification for this category on the next sync?</string>
     <!-- Translators: Toast after moving one M3U category to a chosen section. Placeholder is Live TV, Movies, or Series. -->
-    <string name="content_m3u_category_moved">Category moved to %1$s</string>
+    <string name="content_m3u_category_moved">Category moved to <xliff:g id="target">%1$s</xliff:g></string>
     <!-- Translators: Toast after removing a manual M3U category override. -->
     <string name="content_m3u_category_auto_restored">Category will use automatic classification</string>
     <!-- Translators: Confirmation message before a category is reimported into another section. First value is the number of items, second is the target section label. -->
     <plurals name="content_m3u_category_move_confirm">
-        <item quantity="one">%1$d item will be moved to %2$s</item>
-        <item quantity="other">%1$d items will be moved to %2$s</item>
+        <item quantity="one"><xliff:g id="count">%1$d</xliff:g> item will be moved to <xliff:g id="target">%2$s</xliff:g></item>
+        <item quantity="other"><xliff:g id="count">%1$d</xliff:g> items will be moved to <xliff:g id="target">%2$s</xliff:g></item>
     </plurals>
     <!-- Translators: Predefined category name for the Movies section in the category browser. -->
     <string name="content_category_movies">Movies</string>
