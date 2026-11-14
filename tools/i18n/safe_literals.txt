@@ -181,9 +181,9 @@
 3	json	core/src/main/java/tv/own/owntv/core/backup/UserDataResolver.kt	edesc
 1	json	core/src/main/java/tv/own/owntv/core/backup/UserDataResolver.kt	entries
 6	json	core/src/main/java/tv/own/owntv/core/backup/UserDataResolver.kt	ep
-12	json	core/src/main/java/tv/own/owntv/core/backup/UserDataResolver.kt	fav
-12	json	core/src/main/java/tv/own/owntv/core/backup/UserDataResolver.kt	his
-16	json	core/src/main/java/tv/own/owntv/core/backup/UserDataResolver.kt	kind
+13	json	core/src/main/java/tv/own/owntv/core/backup/UserDataResolver.kt	fav
+13	json	core/src/main/java/tv/own/owntv/core/backup/UserDataResolver.kt	his
+17	json	core/src/main/java/tv/own/owntv/core/backup/UserDataResolver.kt	kind
 12	json	core/src/main/java/tv/own/owntv/core/backup/UserDataResolver.kt	member
 12	json	core/src/main/java/tv/own/owntv/core/backup/UserDataResolver.kt	name
 5	json	core/src/main/java/tv/own/owntv/core/backup/UserDataResolver.kt	oid
@@ -191,15 +191,15 @@
 1	json	core/src/main/java/tv/own/owntv/core/backup/UserDataResolver.kt	owntv_pending_userdata
 14	json	core/src/main/java/tv/own/owntv/core/backup/UserDataResolver.kt	p
 6	json	core/src/main/java/tv/own/owntv/core/backup/UserDataResolver.kt	pos
-13	json	core/src/main/java/tv/own/owntv/core/backup/UserDataResolver.kt	prog
-12	json	core/src/main/java/tv/own/owntv/core/backup/UserDataResolver.kt	rid
+14	json	core/src/main/java/tv/own/owntv/core/backup/UserDataResolver.kt	prog
+16	json	core/src/main/java/tv/own/owntv/core/backup/UserDataResolver.kt	rid
 3	json	core/src/main/java/tv/own/owntv/core/backup/UserDataResolver.kt	sdesc
 6	json	core/src/main/java/tv/own/owntv/core/backup/UserDataResolver.kt	season
 5	json	core/src/main/java/tv/own/owntv/core/backup/UserDataResolver.kt	sname
 9	json	core/src/main/java/tv/own/owntv/core/backup/UserDataResolver.kt	sort
 12	json	core/src/main/java/tv/own/owntv/core/backup/UserDataResolver.kt	src
-5	json	core/src/main/java/tv/own/owntv/core/backup/UserDataResolver.kt	srid
-16	json	core/src/main/java/tv/own/owntv/core/backup/UserDataResolver.kt	t
+6	json	core/src/main/java/tv/own/owntv/core/backup/UserDataResolver.kt	srid
+20	json	core/src/main/java/tv/own/owntv/core/backup/UserDataResolver.kt	t
 1	json	core/src/main/java/tv/own/owntv/core/backup/UserDataWriter.kt	fav
 4	json	core/src/main/java/tv/own/owntv/core/backup/UserDataWriter.kt	his
 1	json	core/src/main/java/tv/own/owntv/core/backup/UserDataWriter.kt	member
@@ -1083,6 +1083,7 @@
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	DELETE FROM series WHERE sourceId = :sourceId
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	DELETE FROM series WHERE sourceId = :sourceId AND remoteId IN (:remoteIds)
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	DELETE FROM series WHERE sourceId = :sourceId AND remoteId IS NULL
+1	sql	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	FROM episodes e JOIN series s ON s.id = e.seriesId
 3	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	INNER JOIN favorites f ON f.itemId = s.id AND f.mediaType = 'SERIES'
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	INNER JOIN favorites f ON f.itemId = s.id AND f.mediaType = 'SERIES' AND f.profileId = :profileId
 4	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	LEFT JOIN content_order o ON o.itemId = s.id AND o.profileId = :profileId AND o.mediaType = 'SERIES' AND o.contextKey = :contextKey
@@ -1128,6 +1129,8 @@
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	SELECT COUNT(*) FROM watch_history h INNER JOIN series s ON s.id = h.itemId
 1	sql	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	SELECT COUNT(DISTINCT seasonNumber) FROM episodes WHERE seriesId = :seriesId AND seasonNumber > 0
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	SELECT categoryId, COUNT(*) AS itemCount FROM series WHERE sourceId = :sourceId AND categoryId IS NOT NULL GROUP BY categoryId
+1	sql	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	SELECT e.* FROM episodes e JOIN series s ON s.id = e.seriesId
+1	sql	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	SELECT e.remoteId AS episodeRemoteId, s.remoteId AS seriesRemoteId
 2	sql	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	SELECT id, sourceId, categoryId, name, year, remoteId, sortOrder, canonicalTitle,
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	SELECT remoteId FROM series WHERE sourceId = :sourceId AND categoryId = :categoryId AND remoteId IS NOT NULL
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	SELECT remoteId FROM series WHERE sourceId = :sourceId AND categoryId IN (:categoryIds) AND remoteId IS NOT NULL
@@ -1148,6 +1151,8 @@
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	WHERE h.profileId = :profileId AND s.sourceId IN (:sourceIds) ORDER BY h.watchedAt DESC
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	WHERE h.profileId = :profileId AND s.sourceId IN (:sourceIds) ORDER BY h.watchedAt DESC LIMIT :limit
 2	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	WHERE s.categoryId = :categoryId
+1	sql	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	WHERE s.sourceId = :sourceId AND e.remoteId = :remoteId LIMIT 2
+1	sql	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	WHERE s.sourceId = :sourceId AND e.remoteId IN (:remoteIds)
 1	room-schema	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	WHERE s.sourceId IN (:sourceIds) AND h.itemId IS NULL ORDER BY f.addedAt DESC LIMIT :limit
 1	sql	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	WHERE seriesId IN (:seriesIds) AND seasonNumber > 0 GROUP BY seriesId
 1	sql	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	WHERE sourceId = :sourceId AND id IN
@@ -1862,6 +1867,46 @@
 1	protocol	core/src/main/java/tv/own/owntv/core/network/StreamHeaders.kt	transfer-encoding
 1	protocol	core/src/main/java/tv/own/owntv/core/network/StreamHeaders.kt	user-agent
 1	protocol	core/src/main/java/tv/own/owntv/core/network/StreamHeaders.kt	x-forwarded-for
+1	empty	core/src/main/java/tv/own/owntv/core/parser/M3uCategoryOverrideStore.kt	\0
+1	technical	core/src/main/java/tv/own/owntv/core/parser/M3uCategoryOverrideStore.kt	owntv_m3u_category_overrides
+2	empty	core/src/main/java/tv/own/owntv/core/parser/M3uContentClassifier.kt	\0
+1	regex	core/src/main/java/tv/own/owntv/core/parser/M3uContentClassifier.kt	(?i)\\bS\\d{1,2}\\s*[.\\-_ ]?\\s*E\\d{1,3}\\b
+1	regex	core/src/main/java/tv/own/owntv/core/parser/M3uContentClassifier.kt	(?i)\\bSeason\\s+\\d{1,2}\\s+Episode\\s+\\d{1,3}\\b
+1	regex	core/src/main/java/tv/own/owntv/core/parser/M3uContentClassifier.kt	(?i)\\bTemporada\\s+\\d{1,2}\\s+Epis[oó]dio\\s+\\d{1,3}\\b
+1	regex	core/src/main/java/tv/own/owntv/core/parser/M3uContentClassifier.kt	(?i)\\b\\d{1,2}x\\d{1,3}\\b
+1	regex	core/src/main/java/tv/own/owntv/core/parser/M3uContentClassifier.kt	[^\\p{L}\\p{N}]+
+1	regex	core/src/main/java/tv/own/owntv/core/parser/M3uContentClassifier.kt	\\s*[|;/,:>]+\\s*
+1	technical	core/src/main/java/tv/own/owntv/core/parser/M3uContentClassifier.kt	avi
+1	technical	core/src/main/java/tv/own/owntv/core/parser/M3uContentClassifier.kt	canais
+1	technical	core/src/main/java/tv/own/owntv/core/parser/M3uContentClassifier.kt	channel
+1	technical	core/src/main/java/tv/own/owntv/core/parser/M3uContentClassifier.kt	channels
+1	technical	core/src/main/java/tv/own/owntv/core/parser/M3uContentClassifier.kt	cinema
+1	technical	core/src/main/java/tv/own/owntv/core/parser/M3uContentClassifier.kt	episodes
+1	technical	core/src/main/java/tv/own/owntv/core/parser/M3uContentClassifier.kt	episódios
+1	technical	core/src/main/java/tv/own/owntv/core/parser/M3uContentClassifier.kt	film
+1	technical	core/src/main/java/tv/own/owntv/core/parser/M3uContentClassifier.kt	filme
+1	technical	core/src/main/java/tv/own/owntv/core/parser/M3uContentClassifier.kt	filmes
+1	technical	core/src/main/java/tv/own/owntv/core/parser/M3uContentClassifier.kt	films
+3	technical	core/src/main/java/tv/own/owntv/core/parser/M3uContentClassifier.kt	live
+1	technical	core/src/main/java/tv/own/owntv/core/parser/M3uContentClassifier.kt	m4v
+1	technical	core/src/main/java/tv/own/owntv/core/parser/M3uContentClassifier.kt	mkv
+1	technical	core/src/main/java/tv/own/owntv/core/parser/M3uContentClassifier.kt	mov
+3	technical	core/src/main/java/tv/own/owntv/core/parser/M3uContentClassifier.kt	movie
+3	technical	core/src/main/java/tv/own/owntv/core/parser/M3uContentClassifier.kt	movies
+1	technical	core/src/main/java/tv/own/owntv/core/parser/M3uContentClassifier.kt	mp4
+1	technical	core/src/main/java/tv/own/owntv/core/parser/M3uContentClassifier.kt	season
+1	technical	core/src/main/java/tv/own/owntv/core/parser/M3uContentClassifier.kt	seasons
+2	technical	core/src/main/java/tv/own/owntv/core/parser/M3uContentClassifier.kt	serie
+3	technical	core/src/main/java/tv/own/owntv/core/parser/M3uContentClassifier.kt	series
+1	technical	core/src/main/java/tv/own/owntv/core/parser/M3uContentClassifier.kt	shows
+1	technical	core/src/main/java/tv/own/owntv/core/parser/M3uContentClassifier.kt	séries
+1	technical	core/src/main/java/tv/own/owntv/core/parser/M3uContentClassifier.kt	television
+1	technical	core/src/main/java/tv/own/owntv/core/parser/M3uContentClassifier.kt	temporada
+1	technical	core/src/main/java/tv/own/owntv/core/parser/M3uContentClassifier.kt	temporadas
+2	technical	core/src/main/java/tv/own/owntv/core/parser/M3uContentClassifier.kt	tv ao vivo
+2	technical	core/src/main/java/tv/own/owntv/core/parser/M3uContentClassifier.kt	tv shows
+3	technical	core/src/main/java/tv/own/owntv/core/parser/M3uContentClassifier.kt	vod
+1	technical	core/src/main/java/tv/own/owntv/core/parser/M3uContentClassifier.kt	webm
 1	empty	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	\0
 1	protocol	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	#
 1	technical	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	#EXTHTTP:
@@ -1893,6 +1938,7 @@
 1	protocol	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	tvg-chno
 1	protocol	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	tvg-id
 1	protocol	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	tvg-logo
+2	technical	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	tvg-name
 1	protocol	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	tvg-type
 1	protocol	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	type
 1	protocol	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	url-tvg
@@ -2575,7 +2621,11 @@
 1	technical	core/src/main/java/tv/own/owntv/core/sync/M3uSyncer.kt	$base$KEY_SEPARATOR#$n
 1	log	core/src/main/java/tv/own/owntv/core/sync/M3uSyncer.kt	$label hash map loaded sourceId=$sourceId size=${it.size} ms=${SystemClock.elapsedRealtime() - start}
 1	technical	core/src/main/java/tv/own/owntv/core/sync/M3uSyncer.kt	$name$KEY_SEPARATOR${group.orEmpty()}
+2	technical	core/src/main/java/tv/own/owntv/core/sync/M3uSyncer.kt	${parseM3uEpisode(e.name).show}$KEY_SEPARATOR${e.groupTitle.orEmpty()}
+1	technical	core/src/main/java/tv/own/owntv/core/sync/M3uSyncer.kt	${parsed.show.lowercase()}$KEY_SEPARATOR${e.groupTitle.orEmpty().lowercase()}
+1	technical	core/src/main/java/tv/own/owntv/core/sync/M3uSyncer.kt	${parsed.show}$KEY_SEPARATOR${e.groupTitle.orEmpty()}
 1	technical	core/src/main/java/tv/own/owntv/core/sync/M3uSyncer.kt	${show.name}$KEY_SEPARATOR${show.group.orEmpty()}
+1	technical	core/src/main/java/tv/own/owntv/core/sync/M3uSyncer.kt	(?i)\\b(?:Season|Temporada)\\s+(\\d{1,2})\\s+(?:Episode|Epis[oó]dio)\\s+(\\d{1,3})\\b
 1	regex	core/src/main/java/tv/own/owntv/core/sync/M3uSyncer.kt	(?i)\\b(\\d{1,2})x(\\d{1,3})\\b
 1	regex	core/src/main/java/tv/own/owntv/core/sync/M3uSyncer.kt	(?i)\\bS(\\d{1,2})\\s*[.\\-_ ]?\\s*E(\\d{1,3})\\b
 3	technical	core/src/main/java/tv/own/owntv/core/sync/M3uSyncer.kt	/
@@ -2595,6 +2645,7 @@
 1	log	core/src/main/java/tv/own/owntv/core/sync/M3uSyncer.kt	dbUpdated=${upsert.updated} dbSkipped=${upsert.skippedUnchanged} processed=$moviesProcessed
 1	log	core/src/main/java/tv/own/owntv/core/sync/M3uSyncer.kt	dbUpdated=${upsert.updated} dbSkipped=${upsert.skippedUnchanged} processed=$processed
 3	url	core/src/main/java/tv/own/owntv/core/sync/M3uSyncer.kt	file://
+1	technical	core/src/main/java/tv/own/owntv/core/sync/M3uSyncer.kt	m3uUnknown
 1	technical	core/src/main/java/tv/own/owntv/core/sync/M3uSyncer.kt	movies
 2	log	core/src/main/java/tv/own/owntv/core/sync/M3uSyncer.kt	ms=${SystemClock.elapsedRealtime() - start}
 2	protocol	core/src/main/java/tv/own/owntv/core/sync/M3uSyncer.kt	playlist_file_unavailable

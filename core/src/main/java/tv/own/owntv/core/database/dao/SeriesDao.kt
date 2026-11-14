@@ -71,6 +71,21 @@ interface SeriesDao {
     @Query("DELETE FROM series WHERE sourceId = :sourceId AND remoteId IN (:remoteIds)")
     suspend fun deleteByRemoteIds(sourceId: Long, remoteIds: List<String>)
 
+    /** M3U cross-type relink: locate episode identities without guessing by title. */
+    @Query(
+        "SELECT e.remoteId AS episodeRemoteId, s.remoteId AS seriesRemoteId " +
+            "FROM episodes e JOIN series s ON s.id = e.seriesId " +
+            "WHERE s.sourceId = :sourceId AND e.remoteId IN (:remoteIds)",
+    )
+    suspend fun m3uEpisodeIdentities(sourceId: Long, remoteIds: List<String>): List<M3uEpisodeIdentity>
+
+    /** Resolve one newly-classified M3U episode across all shows in a source. */
+    @Query(
+        "SELECT e.* FROM episodes e JOIN series s ON s.id = e.seriesId " +
+            "WHERE s.sourceId = :sourceId AND e.remoteId = :remoteId LIMIT 2",
+    )
+    suspend fun findM3uEpisodesByRemote(sourceId: Long, remoteId: String): List<EpisodeEntity>
+
     // --- Re-sync delta check (Stalker paged catalogs): skip categories whose item count is unchanged ---
     @Query("SELECT categoryId, COUNT(*) AS itemCount FROM series WHERE sourceId = :sourceId AND categoryId IS NOT NULL GROUP BY categoryId")
     suspend fun countsByCategoryOnce(sourceId: Long): List<CategoryItemCount>
@@ -351,3 +366,8 @@ interface SeriesDao {
     @Query("DELETE FROM series WHERE sourceId = :sourceId AND remoteId IS NULL")
     suspend fun deleteNullRemoteIds(sourceId: Long)
 }
+
+data class M3uEpisodeIdentity(
+    val episodeRemoteId: String,
+    val seriesRemoteId: String?,
+)

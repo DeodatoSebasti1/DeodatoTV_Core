@@ -16,6 +16,8 @@ data class M3uEntry(
     val logo: String?,
     val groupTitle: String?,
     val tvgId: String?,
+    /** Provider-supplied title; [name] uses this only when the display name after the comma is blank. */
+    val tvgName: String? = null,
     val tvgChno: Int?,
     /** `type` attribute — "vod" / "series" / "movie" — tells us whether this is VOD content. */
     val type: String?,
@@ -92,10 +94,11 @@ class M3uParser {
                     pendingHeaders = null // a new entry starts; drop anything the previous one left
                     pendingDrm = null
                     pending = PendingExtInf(
-                        name = line.substringAfterLast(',').trim(),
+                        name = line.substringAfterLast(',').trim().ifBlank { attrs.attr("tvg-name").orEmpty() },
                         logo = attrs.attr("tvg-logo"),
                         groupTitle = attrs.attr("group-title"),
                         tvgId = attrs.attr("tvg-id"),
+                        tvgName = attrs.attr("tvg-name"),
                         tvgChno = attrs.attr("tvg-chno")?.toIntOrNull(),
                         type = attrs.attr("type"),
                         tvgType = attrs.attr("tvg-type"),
@@ -144,6 +147,7 @@ class M3uParser {
                                     logo = p.logo,
                                     groupTitle = p.groupTitle,
                                     tvgId = p.tvgId,
+                                    tvgName = p.tvgName,
                                     tvgChno = p.tvgChno,
                                     type = p.type,
                                     tvgType = p.tvgType,
@@ -197,6 +201,7 @@ class M3uParser {
         val logo: String?,
         val groupTitle: String?,
         val tvgId: String?,
+        val tvgName: String?,
         val tvgChno: Int?,
         val type: String?,
         val tvgType: String?,

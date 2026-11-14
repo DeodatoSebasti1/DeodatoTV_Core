@@ -31,6 +31,7 @@ import tv.own.owntv.core.database.entity.FavoriteEntity
 import tv.own.owntv.core.database.entity.PlaybackProgressEntity
 import tv.own.owntv.core.database.entity.WatchHistoryEntity
 import tv.own.owntv.core.model.MediaType
+import tv.own.owntv.core.sync.M3uReclassification
 
 /**
  * Records that could not be attached yet, kept on disk so they outlive the process and heal on a later
@@ -297,8 +298,16 @@ class UserDataResolver(
      * favorites for content that's simply not re-synced yet, instead of leaving them to heal on the
      * next successful sync.
      */
-    suspend fun relinkAfterSync(snapshot: JSONArray, purge: Boolean = true) {
-        val unresolved = resolveAllChunked(snapshot)
+    suspend fun relinkAfterSync(snapshot: JSONArray, purge: Boolean = true) =
+        relinkAfterSync(snapshot, purge, emptyList())
+
+    internal suspend fun relinkAfterSync(
+        snapshot: JSONArray,
+        purge: Boolean,
+        m3uReclassifications: List<M3uReclassification>,
+    ) {
+        val remapped = remapM3uSnapshot(snapshot, m3uReclassifications)
+        val unresolved = resolveAllChunked(remapped)
         // Purge is strictly snapshot-scoped: only rows this snapshot captured (by their old ids) may
         // be dropped, and only when their content row is genuinely gone. An EMPTY snapshot must never
         // purge — the old fallback ran a GLOBAL orphan purge across ALL sources, which could delete
@@ -309,6 +318,51 @@ class UserDataResolver(
         }
         if (unresolved.length() > 0) addPending(unresolved)
         resolvePending() // also retries any in-flight backup restore
+    }
+
+    /**
+     * Rewrites only snapshot identities backed by one unambiguous sync-produced hint. The original
+     * snapshot remains untouched so orphan cleanup still targets the old (type,id) pair.
+     */
+    private fun remapM3uSnapshot(snapshot: JSONArray, changes: List<M3uReclassification>): JSONArray {
+        if (changes.isEmpty()) return snapshot
+        val unique = changes.groupBy { it.oldType to it.oldRemoteId }.filterValues { it.size == 1 }
+            .mapValues { it.value.single() }
+        val out = JSONArray()
+        for (i in 0 until snapshot.length()) {
+            val original = snapshot.getJSONObject(i)
+            val oldType = runCatching { MediaType.valueOf(original.getString("t")) }.getOrNull()
+            val oldRemoteId = original.optStringOrNull("rid")
+            val change = if (oldType == null || oldRemoteId == null) null else unique[oldType to oldRemoteId]
+            if (change == null) {
+                out.put(original)
+                continue
+            }
+            val kind = original.optString("kind")
+            val mapped = JSONObject(original.toString())
+            when {
+                change.targetType == MediaType.EPISODE && kind == "fav" && change.targetSeriesRemoteId != null -> {
+                    mapped.put("t", MediaType.SERIES.name)
+                    mapped.put("rid", change.targetSeriesRemoteId)
+                }
+                change.targetType == MediaType.EPISODE && (kind == "his" || kind == "prog") &&
+                    change.targetSeriesRemoteId != null -> {
+                    mapped.put("t", MediaType.EPISODE.name)
+                    mapped.put("rid", change.targetRemoteId)
+                    mapped.put("srid", change.targetSeriesRemoteId)
+                }
+                change.targetType == MediaType.LIVE || change.targetType == MediaType.MOVIE -> {
+                    mapped.put("t", change.targetType.name)
+                    mapped.put("rid", change.targetRemoteId)
+                }
+                else -> {
+                    out.put(original)
+                    continue
+                }
+            }
+            out.put(mapped)
+        }
+        return out
     }
 
     private fun JSONArray.hasSourceSnapshotIds(): Boolean =

@@ -15,6 +15,7 @@ import tv.own.owntv.core.database.dao.SourceDao
 import tv.own.owntv.core.database.entity.SourceEntity
 import tv.own.owntv.core.model.SourceType
 import tv.own.owntv.core.network.HttpClient
+import tv.own.owntv.core.parser.M3uCategoryOverrideStore
 import tv.own.owntv.core.parser.M3uParser
 import tv.own.owntv.core.parser.XtreamClient
 import tv.own.owntv.core.settings.SettingsRepository
@@ -43,15 +44,21 @@ class SyncManager(
     private val activityTracker: SyncActivityTracker,
     customize: CustomizationStore,
     settings: SettingsRepository,
+    categoryOverrideStore: M3uCategoryOverrideStore,
 ) {
     private val support = SyncSupport(categoryDao, channelDao, movieDao, seriesDao, sourceDao, customize, settings)
     private val xtreamSyncer = XtreamSyncer(xtream, bulkInsertHelper, support)
-    private val m3uSyncer = M3uSyncer(context, sourceDao, categoryDao, channelDao, movieDao, seriesDao, m3u, http, bulkInsertHelper, support)
+    private val m3uSyncer = M3uSyncer(context, sourceDao, categoryDao, channelDao, movieDao, seriesDao, m3u, http, bulkInsertHelper, categoryOverrideStore, support)
     private val stalkerSyncer = StalkerSyncer(stalkerClient, stalkerAuth, bulkInsertHelper, support, sourceDao)
 
     private val lastSyncStats = java.util.concurrent.ConcurrentHashMap<Long, SyncRunStats>()
+    private val m3uReclassifications = java.util.concurrent.ConcurrentHashMap<Long, List<M3uReclassification>>()
 
     fun getLastSyncStats(sourceId: Long): SyncRunStats? = lastSyncStats[sourceId]
+
+    /** One-shot handoff to SourceRepository's post-sync user-data relink. */
+    internal fun consumeM3uReclassifications(sourceId: Long): List<M3uReclassification> =
+        m3uReclassifications.remove(sourceId).orEmpty()
 
     suspend fun sync(
         source: SourceEntity,
@@ -81,6 +88,8 @@ class SyncManager(
                 onProgress(stage)
             }
             var result: SyncResult = SyncResult.Cancelled
+            var currentM3uReclassifications: List<M3uReclassification> = emptyList()
+            m3uReclassifications.remove(source.id)
             try {
                 if (!effective.hasAny) {
                     // Empty effective (e.g. Movies-later remainder after Movies turned Off): clean
@@ -96,7 +105,7 @@ class SyncManager(
                     // waits for the last writer — so sources fetch/parse/insert fully in parallel here.
                     when (source.type) {
                         SourceType.XTREAM -> xtreamSyncer.sync(source, progress, stats, effective)
-                        SourceType.M3U -> m3uSyncer.sync(source, progress, stats)
+                        SourceType.M3U -> currentM3uReclassifications = m3uSyncer.sync(source, progress, stats)
                         SourceType.LOCAL_BACKUP -> Unit
                         SourceType.STALKER -> stalkerSyncer.sync(source, progress, stats, effective)
                     }
@@ -125,6 +134,9 @@ class SyncManager(
                 activityTracker.finished(source.id, source.name, result) // also on cancellation — never leave a stuck pill
             }
             val runStats = stats.build(result)
+            if (source.type == SourceType.M3U && result is SyncResult.Success) {
+                m3uReclassifications[source.id] = currentM3uReclassifications
+            }
             lastSyncStats[source.id] = runStats
             Log.i(TAG, "sync end sourceId=${source.id} totalElapsedMs=${SystemClock.elapsedRealtime() - syncStartedAt}")
             logStats(runStats)

@@ -238,7 +238,7 @@ class OwnTVPlayer(
         // flaky network. Halfway through the budget: late enough that a transient blip has had its chances,
         // early enough that the tolerant reopen still gets several attempts before the error UI.
         const val TOLERANT_DEMUX_AFTER_RECONNECTS = 3
-        const val LIVE_OPEN_TIMEOUT_MS = 10_000L // bound FFmpeg/network loops that never emit FILE_LOADED/END_FILE
+        const val LIVE_OPEN_TIMEOUT_MS = 15_000L // tolerate slow providers while still bounding a silent FFmpeg open
 
         /** How long a statistics read may wait for [mpvExecutor] before it is abandoned as unknown. The
          *  executor can be busy with a real command (a load, a decoder switch) and no readout is worth
@@ -379,6 +379,7 @@ class OwnTVPlayer(
         // ride [PlayerHeartbeat]'s shared 1 Hz beat, so neither has an interval of its own any more.
         const val EXO_SUB_DELAY_DEBOUNCE_MS = 350L // settle time before a timing change re-prepares on Exo (§8)
         const val FREEZE_MAX_W = 960               // capture width cap for the engine-swap freeze frame
+        private const val LIVE_FREEZE_RECYCLE_GRACE_MS = 500L
         const val SURROUND_CHECK_MS = 7_000L       // wait before verifying surround audio actually produces sound
         // Window the audio clock is sampled over for the "sink accepted the format then played silence"
         // check. Long enough that a single stalled packet can't fake a freeze, short enough that a user
@@ -1367,6 +1368,22 @@ class OwnTVPlayer(
         _freezeFrame.value = next
         if (previous != null && previous !== next && !previous.isRecycled) {
             runCatching { previous.recycle() }
+        }
+    }
+
+    /** Hold ExoPlayer's last live frame over the mpv surface until mpv decodes its first replacement. */
+    fun holdLiveHandoffFrame(frame: android.graphics.Bitmap?) {
+        setFreezeFrame(frame)
+    }
+
+    /** Remove a displayed live handoff frame, then recycle it after Compose observes the state change. */
+    private fun clearLiveHandoffFrameAfterFirstFrame() {
+        freezeHandler.post {
+            val previous = _freezeFrame.value ?: return@post
+            _freezeFrame.value = null
+            freezeHandler.postDelayed({
+                if (!previous.isRecycled) runCatching { previous.recycle() }
+            }, LIVE_FREEZE_RECYCLE_GRACE_MS)
         }
     }
 
@@ -3950,6 +3967,8 @@ class OwnTVPlayer(
                 _videoRes.value = resolutionLabel(value.toInt())
                 load.currentHeightPx = value.toInt()
                 if (value > 0) {
+                    // The incoming mpv engine has a real frame; the ExoPlayer handoff snapshot can go.
+                    clearLiveHandoffFrameAfterFirstFrame()
                     lastVideoHeightPx = value.toInt() // remember for recovery decisions on a later failed load
                     videoCheckJob?.cancel() // video is decoding → watchdog not needed
                     // A real frame decoded → playback genuinely works. Dismiss any error the watchdog raised

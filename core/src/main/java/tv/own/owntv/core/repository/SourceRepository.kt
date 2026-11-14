@@ -118,6 +118,9 @@ class SourceRepository(
             .getOrNull()
         val coreStartedAt = SystemClock.elapsedRealtime()
         val (result, _) = syncManager.sync(source, onProgress, contentTypes, forcePrune)
+        val m3uReclassifications = if (source.type == SourceType.M3U) {
+            syncManager.consumeM3uReclassifications(source.id)
+        } else emptyList()
         Log.i(TAG, "core sync sourceId=${source.id} result=${result.name()} ms=${SystemClock.elapsedRealtime() - coreStartedAt}")
         // Always re-attach the snapshot to the new ids — a failed/cancelled sync can still have
         // rewritten some rows (M3U is clear-then-insert; Xtream REPLACE-upserts renumber ids), and
@@ -131,7 +134,13 @@ class SourceRepository(
         // Serialized: parallel source syncs (startup refresh runs every source at once) must not
         // relink/purge against each other's mid-flight state.
         relinkMutex.withLock {
-            runCatching { userData.relinkAfterSync(snapshot ?: org.json.JSONArray(), purge = purge) }
+            runCatching {
+                userData.relinkAfterSync(
+                    snapshot ?: org.json.JSONArray(),
+                    purge = purge,
+                    m3uReclassifications = m3uReclassifications,
+                )
+            }
                 .onSuccess { Log.i(TAG, "userData relink sourceId=${source.id} rows=${snapshot?.length() ?: 0} purge=$purge ms=${SystemClock.elapsedRealtime() - relinkStartedAt}") }
                 .onFailure { Log.w(TAG, "userData relink failed sourceId=${source.id} ms=${SystemClock.elapsedRealtime() - relinkStartedAt}", it) }
         }

@@ -75,7 +75,7 @@ publishing {
     repositories {
         maven {
             name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/ahXN00/OwnTV_Core")
+            url = uri("https://maven.pkg.github.com/DeodatoSebasti1/DeodatoTV_Core")
             credentials {
                 username = providers.gradleProperty("gpr.user")
                     .orElse(providers.environmentVariable("GITHUB_ACTOR")).orNull

@@ -3,6 +3,19 @@
 Core is versioned independently of the apps. A core version number never lines up with an OwnTV TV
 app `v4.x` release, and the two must not be confused. Tags here are prefixed `core-`.
 
+## core-1.0.28 — 2026-11-14
+
+First DeodatoTV-owned Core release. It consolidates the local work used by the DeodatoTV APK:
+
+- intelligent M3U classification for Live TV, Movies and Series;
+- safe M3U reclassification with conservative user-data relinking;
+- persistent per-category M3U classification overrides;
+- Live TV reconnect and stability improvements in the playback engine;
+- DeodatoTV visual palette values shared with the app.
+
+The Maven coordinates and technical namespaces remain `tv.own.owntv` for compatibility. This
+release does not change the Room schema and adds no migration.
+
 ## core-1.0.27 — 2026-09-07
 
 The core share of **Plan Z — the More hub**, which gives both apps one place for everything that is

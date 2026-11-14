@@ -22,7 +22,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "OwnTVCore"
+rootProject.name = "DeodatoTVCore"
 // Shared engine: data, sync, parsers, Room, backup, EPG, and every user-visible string. No UI
 // framework beyond Compose runtime, so the same module backs the TV app and the mobile app.
 include(":core")

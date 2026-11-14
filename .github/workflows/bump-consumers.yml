@@ -23,18 +23,10 @@ name: Bump consumers
 # with GITHUB_TOKEN do not trigger the target repo's workflows, so the PR would sit there with no
 # checks at all.
 
-# Triggered by the GitHub RELEASE, not by the tag. The release is created by "Publish core" as its
-# last step, so it exists only if the unit tests passed and both artifacts actually reached GitHub
-# Packages. That makes the release the single visible gate: no release means no pin-bump PR, and the
-# version is there on the Releases page for users to read before any consumer moves to it.
-#
-# For this to fire at all, the release must be created with CONSUMER_BUMP_TOKEN, not GITHUB_TOKEN —
-# GitHub deliberately does not trigger workflows from events raised by the built-in token, so a
-# release published by GITHUB_TOKEN would sit there and nothing would happen. "Publish core" does
-# that correctly; do not "simplify" it back to github.token.
+# This fork keeps the bump as an explicit maintenance action. The first DeodatoTV Core release is
+# pinned directly in the app repository; future releases can run this workflow manually after the
+# package and GitHub Release have been verified.
 on:
-  release:
-    types: [ published ]
   workflow_dispatch:
     inputs:
       version:
@@ -63,13 +55,7 @@ jobs:
       fail-fast: false          # one consumer failing must not block the others
       matrix:
         consumer:
-          - ahXN00/OwnTV
-          # Private until the mobile app's first release, so CONSUMER_BUMP_TOKEN has to grant access
-          # to it explicitly — a fine-grained PAT lists repositories one by one, and adding this line
-          # without adding the repo to the token fails on `gh pr list` with a 404 that reads exactly
-          # like a typo. It carries its own `automerge-core-bump.yml` since Plan 3 Phase 5, so its
-          # pull request merges itself once green, exactly like the TV app's.
-          - ahXN00/OwnTV_Mobile
+          - DeodatoSebasti1/DeodatoTV
 
     steps:
       # Check out the RELEASED commit, not whatever main has drifted to. `tools/i18n/locales.json`

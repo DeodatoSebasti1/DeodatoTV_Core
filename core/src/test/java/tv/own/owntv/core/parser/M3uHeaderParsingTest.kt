@@ -72,6 +72,32 @@ class M3uHeaderParsingTest {
         assertEquals("http://p.example/", entries[0].headers["Referer"])
     }
 
+    @Test
+    fun tvgNameIsKeptAndUsedWhenDisplayNameIsBlank() {
+        val entries = parse(
+            """
+            #EXTM3U
+            #EXTINF:-1 tvg-name="Fallback title",
+            http://host/movie/item.mp4
+            """.trimIndent(),
+        )
+        assertEquals("Fallback title", entries.single().name)
+        assertEquals("Fallback title", entries.single().tvgName)
+    }
+
+    @Test
+    fun queryAndFragmentRemainInStreamUrlWhilePipeHeadersAreRemoved() {
+        val entries = parse(
+            """
+            #EXTM3U
+            #EXTINF:-1,Film
+            http://host/movie/item.mp4?token=abc#part|User-Agent=Piped
+            """.trimIndent(),
+        )
+        assertEquals("http://host/movie/item.mp4?token=abc#part", entries.single().streamUrl)
+        assertEquals("Piped", entries.single().headers["User-Agent"])
+    }
+
     /** A `|` that isn't a header suffix belongs to the URL and must survive untouched. */
     @Test
     fun pipeInsideAUrlIsNotTreatedAsHeaders() {

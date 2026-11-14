@@ -327,6 +327,27 @@
     <string name="content_category_documentary">Documentary</string>
     <!-- Translators: Predefined category name for the "All Downloads" view. -->
     <string name="content_category_all_downloads">All Downloads</string>
+    <!-- Translators: Dialog title for changing how one M3U playlist category imports. -->
+    <string name="content_m3u_category_classification_title">M3U category classification</string>
+    <!-- Translators: Action that imports this M3U group-title as Live TV channels. -->
+    <string name="content_m3u_category_move_live">Move to Live TV</string>
+    <!-- Translators: Action that imports this M3U group-title as movies/VOD. -->
+    <string name="content_m3u_category_move_movies">Move to Movies</string>
+    <!-- Translators: Action that imports this M3U group-title as series episodes. -->
+    <string name="content_m3u_category_move_series">Move to Series</string>
+    <!-- Translators: Action that removes a manual override and returns this category to automatic M3U detection. -->
+    <string name="content_m3u_category_use_auto">Use automatic classification</string>
+    <!-- Translators: Confirmation copy shown before removing a manual M3U category override. -->
+    <string name="content_m3u_category_auto_confirm">Use automatic classification for this category on the next sync?</string>
+    <!-- Translators: Toast after moving one M3U category to a chosen section. Placeholder is Live TV, Movies, or Series. -->
+    <string name="content_m3u_category_moved">Category moved to %1$s</string>
+    <!-- Translators: Toast after removing a manual M3U category override. -->
+    <string name="content_m3u_category_auto_restored">Category will use automatic classification</string>
+    <!-- Translators: Confirmation message before a category is reimported into another section. First value is the number of items, second is the target section label. -->
+    <plurals name="content_m3u_category_move_confirm">
+        <item quantity="one">%1$d item will be moved to %2$s</item>
+        <item quantity="other">%1$d items will be moved to %2$s</item>
+    </plurals>
     <!-- Translators: Predefined category name for the Movies section in the category browser. -->
     <string name="content_category_movies">Movies</string>
     <!-- Translators: Predefined category name for the Series section in the category browser. -->

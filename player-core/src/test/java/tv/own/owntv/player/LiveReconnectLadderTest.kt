@@ -191,7 +191,14 @@ class LiveReconnectLadderTest {
 
     @Test
     fun `mpv live opening loop is bounded`() {
-        assertEquals(10_000L, OwnTVPlayer.LIVE_OPEN_TIMEOUT_MS)
+        assertEquals(15_000L, OwnTVPlayer.LIVE_OPEN_TIMEOUT_MS)
+    }
+
+    @Test
+    fun `live Exo transport is more tolerant than the shared sync client`() {
+        assertEquals(20L, LivePreviewEngine.LIVE_CONNECT_TIMEOUT_SECS)
+        assertEquals(45L, LivePreviewEngine.LIVE_READ_TIMEOUT_SECS)
+        assertEquals(30L, LivePreviewEngine.LIVE_WRITE_TIMEOUT_SECS)
     }
 
     @Test

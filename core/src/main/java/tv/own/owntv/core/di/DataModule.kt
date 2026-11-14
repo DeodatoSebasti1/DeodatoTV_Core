@@ -12,6 +12,7 @@ import tv.own.owntv.core.download.DownloadEngine
 import tv.own.owntv.core.download.DownloadManager
 import tv.own.owntv.core.network.ConnectivityObserver
 import tv.own.owntv.core.network.HttpClient
+import tv.own.owntv.core.parser.M3uCategoryOverrideStore
 import tv.own.owntv.core.parser.M3uParser
 import tv.own.owntv.core.parser.XtreamClient
 import tv.own.owntv.core.launcher.LauncherIntegrationRepository
@@ -179,6 +180,7 @@ val dataModule = module {
             activityTracker = get(),
             customize = get(),
             settings = get(),
+            categoryOverrideStore = get(),
         )
     }
     // App-wide "sync running" signal for the shell status pill (every sync funnels through SyncManager).
@@ -232,6 +234,7 @@ val dataModule = module {
     single { tv.own.owntv.core.profile.ProfileManager(get(), get(), get(), get(), get()) }
     // context, okHttpClient — in-app updates from GitHub Releases
     single { UpdateManager(androidContext(), get()) }
+    single { M3uCategoryOverrideStore(androidContext()) }
     single { CatalogSyncScheduler(androidContext()) }
     single { EpgSyncScheduler(androidContext()) }
     // profileDao, sourceDao, sourceRepository, backup, settings, connectivity, importFinalizer,

@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <b>The shared engine behind the OwnTV apps</b><br>
+  <b>The shared engine behind DeodatoTV</b><br>
   <sub>Data · sync · parsers · EPG · playback — everything that isn't a screen</sub>
 </p>
 
@@ -20,26 +20,27 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/ahXN00/OwnTV_Core/actions/workflows/build.yml">
-    <img alt="Core CI" src="https://github.com/ahXN00/OwnTV_Core/actions/workflows/build.yml/badge.svg">
+  <a href="https://github.com/DeodatoSebasti1/DeodatoTV_Core/actions/workflows/build.yml">
+    <img alt="Core CI" src="https://github.com/DeodatoSebasti1/DeodatoTV_Core/actions/workflows/build.yml/badge.svg">
   </a>
-  <a href="https://github.com/ahXN00/OwnTV_Core/actions/workflows/i18n.yml">
-    <img alt="i18n" src="https://github.com/ahXN00/OwnTV_Core/actions/workflows/i18n.yml/badge.svg">
+  <a href="https://github.com/DeodatoSebasti1/DeodatoTV_Core/actions/workflows/i18n.yml">
+    <img alt="i18n" src="https://github.com/DeodatoSebasti1/DeodatoTV_Core/actions/workflows/i18n.yml/badge.svg">
   </a>
-  <a href="https://github.com/ahXN00/OwnTV_Core/actions/workflows/publish.yml">
-    <img alt="Publish core" src="https://github.com/ahXN00/OwnTV_Core/actions/workflows/publish.yml/badge.svg">
+  <a href="https://github.com/DeodatoSebasti1/DeodatoTV_Core/actions/workflows/publish.yml">
+    <img alt="Publish core" src="https://github.com/DeodatoSebasti1/DeodatoTV_Core/actions/workflows/publish.yml/badge.svg">
   </a>
 </p>
 
 ---
 
-OwnTV Core is the **headless half** of [OwnTV](https://github.com/ahXN00/OwnTV), the open-source
+DeodatoTV Core is the **headless half** of [DeodatoTV](https://github.com/DeodatoSebasti1/DeodatoTV), the open-source
 IPTV **player** for Android TV. Everything that is not a screen lives here: the Room database and
 every migration, playlist sync and parsing for **M3U / Xtream / Stalker**, EPG, backup and restore,
 profiles, downloads, settings storage, **every user-visible string**, and the **dual playback
 engine** — libmpv (FFmpeg) plus Media3/ExoPlayer.
 
-Neither module renders anything. They use the Compose **runtime** for state, but no `compose-ui`,
+This repository preserves the GPLv3 licence and the legal history of the OwnTV project it derives
+from. Neither module renders anything. They use the Compose **runtime** for state, but no `compose-ui`,
 no `compose-foundation`, no `androidx.tv.*` and no navigation — that is exactly what lets one engine
 back both the Android TV app and the phone/tablet app.
 
@@ -152,7 +153,7 @@ only **`read:packages`**:
 
 ```kotlin
 maven {
-    url = uri("https://maven.pkg.github.com/ahXN00/OwnTV_Core")
+    url = uri("https://maven.pkg.github.com/DeodatoSebasti1/DeodatoTV_Core")
     credentials {
         username = providers.gradleProperty("gpr.user").orNull
         password = providers.gradleProperty("gpr.token").orNull

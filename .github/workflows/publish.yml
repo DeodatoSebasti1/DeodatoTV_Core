@@ -21,7 +21,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   packages: write
 
 concurrency:
@@ -76,22 +76,15 @@ jobs:
       # run leaves no release, so no consumer is ever pinned to something that does not exist, and
       # there is a chance to fix the problem and re-tag before anything downstream moves.
       #
-      # CONSUMER_BUMP_TOKEN, not GITHUB_TOKEN: GitHub does not trigger workflows from events raised
-      # by the built-in token, so a release created with it would never start the bump. Do not
-      # "simplify" this to github.token — it fails silently, with a green run and no pull request.
+      # The DeodatoTV fork publishes its release with the repository token. Consumer pinning is
+      # performed explicitly in the app repository, so this workflow needs no cross-repository PAT.
       - name: Publish the GitHub Release
         if: startsWith(github.ref, 'refs/tags/core-')
         env:
-          GH_TOKEN: ${{ secrets.CONSUMER_BUMP_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
           TAG: ${{ github.ref_name }}
         run: |
           set -euo pipefail
-
-          if [ -z "${GH_TOKEN:-}" ]; then
-            echo "::error::CONSUMER_BUMP_TOKEN is not set on this repository."
-            echo "A release created with GITHUB_TOKEN would not trigger the consumer bump."
-            exit 1
-          fi
 
           # Body = this version's section of CHANGELOG.md, from "## <tag>" to the next "## core-".
           # Same shape as the TV app's release-notes workflow.
@@ -119,7 +112,7 @@ jobs:
           # the consumers were already bumped the first time.
           if gh release view "$TAG" >/dev/null 2>&1; then
             echo "Release $TAG already exists — updating its notes."
-            gh release edit "$TAG" --title "OwnTV Core $TAG" --notes-file notes.md
+            gh release edit "$TAG" --title "DeodatoTV Core $TAG" --notes-file notes.md
           else
-            gh release create "$TAG" --title "OwnTV Core $TAG" --notes-file notes.md --verify-tag
+            gh release create "$TAG" --title "DeodatoTV Core $TAG" --notes-file notes.md --verify-tag
           fi

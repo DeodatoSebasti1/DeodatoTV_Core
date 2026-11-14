@@ -32,9 +32,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import tv.own.owntv.core.network.HttpClient
 import java.util.Locale
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.coroutines.resume
 import tv.own.owntv.core.drm.toMediaDrmConfiguration
 import tv.own.owntv.core.network.StreamHeaders
 
@@ -1099,6 +1103,72 @@ class LivePreviewEngine(
     fun setSurface(s: Surface?) {
         surface = s
         if (s != null) player?.setVideoSurface(s) else player?.clearVideoSurface()
+    }
+
+    /**
+     * Best-effort snapshot of the current live frame for an ExoPlayer → mpv handoff.
+     *
+     * The SurfaceView disappears as soon as the ViewModel changes engines. Without a snapshot that
+     * transition is a black flash even though ExoPlayer had a perfectly good last frame. PixelCopy is
+     * bounded and scaled to the same memory ceiling as the existing mpv → ExoPlayer VOD handoff; a
+     * failure never delays or prevents recovery.
+     */
+    suspend fun captureCurrentFrame(): android.graphics.Bitmap? = suspendCancellableCoroutine { continuation ->
+        val target = surface
+        val size = _videoSize.value
+        if (target == null || !target.isValid || size == null || size.first <= 0 || size.second <= 0 ||
+            android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.N
+        ) {
+            continuation.resume(null)
+            return@suspendCancellableCoroutine
+        }
+        val scale = minOf(1f, OwnTVPlayer.FREEZE_MAX_W.toFloat() / size.first)
+        val width = (size.first * scale).toInt().coerceAtLeast(1)
+        val height = (size.second * scale).toInt().coerceAtLeast(1)
+        val bitmap = runCatching {
+            android.graphics.Bitmap.createBitmap(width, height, android.graphics.Bitmap.Config.ARGB_8888)
+        }.getOrNull()
+        if (bitmap == null) {
+            continuation.resume(null)
+            return@suspendCancellableCoroutine
+        }
+
+        val finished = AtomicBoolean(false)
+        val timeout = Runnable {
+            if (finished.compareAndSet(false, true)) {
+                // PixelCopy may still own the destination. Its eventual callback recycles it; recycling
+                // here could race a native write into the bitmap.
+                if (continuation.isActive) continuation.resume(null)
+            }
+        }
+        mainHandler.postDelayed(timeout, FREEZE_CAPTURE_TIMEOUT_MS)
+        continuation.invokeOnCancellation {
+            if (finished.compareAndSet(false, true)) {
+                mainHandler.removeCallbacks(timeout)
+                // PixelCopy may still own the destination until its callback; recycle it there.
+            }
+        }
+        runCatching {
+            android.view.PixelCopy.request(target, bitmap, { result ->
+                mainHandler.removeCallbacks(timeout)
+                if (finished.compareAndSet(false, true)) {
+                    if (continuation.isActive) {
+                        continuation.resume(if (result == android.view.PixelCopy.SUCCESS) bitmap else null)
+                        if (result != android.view.PixelCopy.SUCCESS && !bitmap.isRecycled) bitmap.recycle()
+                    } else if (!bitmap.isRecycled) {
+                        bitmap.recycle()
+                    }
+                } else if (!bitmap.isRecycled) {
+                    bitmap.recycle()
+                }
+            }, mainHandler)
+        }.onFailure {
+            mainHandler.removeCallbacks(timeout)
+            if (finished.compareAndSet(false, true)) {
+                if (!bitmap.isRecycled) bitmap.recycle()
+                if (continuation.isActive) continuation.resume(null)
+            }
+        }
     }
 
     /** Enable/disable Media3's own Surface.setFrameRate mechanism. This is separate from the window-level
@@ -2174,6 +2244,14 @@ class LivePreviewEngine(
      *  masked ([textPrefix]), and Authorization/Cookie are logged as presence flags, never values. */
     private val diagnosticHttpClient by lazy {
         streamingHttp.client.newBuilder()
+            // Playback gets its own transport policy. The shared client intentionally fails fast and
+            // leaves retries to SyncManager; a live stream instead benefits from one transparent TCP
+            // recovery and must tolerate a provider pausing between segments without changing Movies,
+            // Series, downloads or catalogue synchronisation.
+            .connectTimeout(LIVE_CONNECT_TIMEOUT_SECS, TimeUnit.SECONDS)
+            .readTimeout(LIVE_READ_TIMEOUT_SECS, TimeUnit.SECONDS)
+            .writeTimeout(LIVE_WRITE_TIMEOUT_SECS, TimeUnit.SECONDS)
+            .retryOnConnectionFailure(true)
             .addInterceptor { chain ->
                 val startedAt = android.os.SystemClock.elapsedRealtime()
                 val request = chain.request()
@@ -2542,6 +2620,10 @@ class LivePreviewEngine(
 
     companion object {
         private const val MAX_VOLUME = VolumeBoost.MAX_VOLUME // same ceiling as mpv; 100–150 comes from LoudnessEnhancer
+        internal const val LIVE_CONNECT_TIMEOUT_SECS = 20L
+        internal const val LIVE_READ_TIMEOUT_SECS = 45L
+        internal const val LIVE_WRITE_TIMEOUT_SECS = 30L
+        private const val FREEZE_CAPTURE_TIMEOUT_MS = 300L
         private const val MAX_RECONNECTS = 8        // ~consecutive failures before giving up (HUD Retry then)
         /** Playback must hold this long before the reconnect ladder is considered recovered. */
         internal const val HEALTHY_MS = 60_000L

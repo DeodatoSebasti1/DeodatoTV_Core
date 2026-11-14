@@ -99,7 +99,7 @@ publishing {
     repositories {
         maven {
             name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/ahXN00/OwnTV_Core")
+            url = uri("https://maven.pkg.github.com/DeodatoSebasti1/DeodatoTV_Core")
             // Never in the repo — these live in ~/.gradle/gradle.properties locally, and come from
             // repository secrets in CI.
             credentials {
