@@ -143,7 +143,6 @@ internal object CompanionHtml {
 
         val savedTitle = s(R.string.companion_saved_page_title)
         val savedHeading = s(R.string.companion_saved_heading)
-        val savedSendAnother = s(R.string.companion_saved_send_another)
         val savedBackupBody = s(R.string.companion_saved_backup_body)
         val savedBackupLink = s(R.string.companion_saved_backup_link)
         val savedImageBody = s(R.string.companion_saved_image_body)
@@ -330,7 +329,7 @@ internal object CompanionHtml {
         """.trimIndent())
     }
 
-    fun savedPage(context: Context, payload: CompanionPayload, pin: String): String {
+    fun savedPage(context: Context, payload: CompanionPayload): String {
         val c = Copy(context)
         val name = payload.name.ifBlank {
             when (payload.type) {
@@ -344,7 +343,6 @@ internal object CompanionHtml {
             <div class="card">
               <h1>${c.savedHeading.h()}</h1>
               <p>${body.h()}</p>
-              <p><a href="/?pin=$pin">${c.savedSendAnother.h()}</a></p>
             </div>
         """.trimIndent())
     }

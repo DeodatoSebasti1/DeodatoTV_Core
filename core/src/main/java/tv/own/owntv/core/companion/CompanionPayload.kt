@@ -8,8 +8,8 @@ import tv.own.owntv.core.sync.SyncScopeChoice
  * source kinds; irrelevant fields stay blank for a given [type] (e.g. Xtream leaves [portalUrl]/[mac]
  * blank, Stalker leaves [server]/[user]/[pass] blank).
  *
- * The remote browser only *fills* this — it never starts the import. The TV pre-fills its Add Source form from
- * the payload and the user presses Start Import.
+ * The remote browser submits this after PIN authentication. The host app may start it immediately;
+ * retaining the payload also provides a correction form when post-receive validation fails.
  */
 data class CompanionPayload(
     val type: SourceType,

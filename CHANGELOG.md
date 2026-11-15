@@ -3,6 +3,16 @@
 Core is versioned independently of the apps. A core version number never lines up with an OwnTV TV
 app `v4.x` release, and the two must not be confused. Tags here are prefixed `core-`.
 
+## core-1.0.29 — 2026-11-15
+
+Remote add-source now starts the authenticated submission automatically on the TV. The QR/PIN
+security boundary and source validation are unchanged; one companion session accepts one UI action,
+and an M3U upload that could not be saved falls back to the editable TV form instead of importing an
+empty path. The browser success page now reports that import has started and no longer offers a
+second submission after the TV closes the one-shot listener.
+
+No Room schema, migration, player, EPG, Xtream, Stalker or M3U format change.
+
 ## core-1.0.28 — 2026-11-14
 
 First DeodatoTV-owned Core release. It consolidates the local work used by the DeodatoTV APK:

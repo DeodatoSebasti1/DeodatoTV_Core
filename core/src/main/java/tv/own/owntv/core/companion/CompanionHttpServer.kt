@@ -31,8 +31,8 @@ import tv.own.owntv.core.model.SourceType
  * submit endpoints). Direct POSTs to `/xtream|/m3u|/stalker` must also carry the PIN (`?pin=` or the
  * `X-Companion-Pin` header) or receive 401. So a stray device on the network cannot push a source.
  *
- * The remote browser only fills the form; it never starts the import. Submitted details are surfaced via
- * [start]'s onPayload callback, which the host uses to pre-fill Add Source on the TV.
+ * Submitted details are surfaced via [start]'s onPayload callback. The host can start import
+ * immediately after validation or retain the same payload for correction on the TV.
  *
  * Everything HTTP happens off the main thread on [Dispatchers.IO]. Passwords/MAC are never logged.
  */
@@ -389,7 +389,7 @@ class CompanionHttpServer(
                 val payload = CompanionHttpProtocol.parsePayload(headers["content-type"], body, fallback)
                     ?: return sendText(socket, 400, localized(R.string.companion_error_missing_fields))
                 onPayload(payload)
-                return sendHtml(socket, 200, CompanionHtml.savedPage(pageContext, payload, pin))
+                return sendHtml(socket, 200, CompanionHtml.savedPage(pageContext, payload))
             }
 
             sendText(socket, 404, localized(R.string.companion_error_not_found))

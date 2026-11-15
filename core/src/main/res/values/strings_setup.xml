@@ -175,7 +175,7 @@
     <!-- Translators: Heading on the RemoteSetupScreen for adding a source via the remote companion. -->
     <string name="setup_add_from_phone">Add from another device</string>
     <!-- Translators: Description on the RemoteSetupScreen explaining how to use the remote companion. -->
-    <string name="setup_phone_add_description">On a phone, tablet or computer on the same Wi-Fi, scan the QR (or open the URL), enter this PIN, fill in your playlist and tap Send to TV. Its details then appear here, ready to import \u2014 you press Start Import with the remote.</string>
+    <string name="setup_phone_add_description">On a phone, tablet or computer on the same Wi-Fi, scan the QR (or open the URL), enter this PIN, fill in your playlist and tap Send to TV. The TV validates it and starts importing automatically.</string>
     <!-- Translators: Loading label while the companion server is starting. -->
     <string name="setup_opening">Opening\u2026</string>
     <!-- Translators: Button label on the RemoteSetupScreen to start the companion HTTP server. -->
@@ -367,7 +367,7 @@
     <!-- Translators: Heading on the companion add-source page. -->
     <string name="companion_add_heading">Add a source</string>
     <!-- Translators: Description on the companion add-source page. -->
-    <string name="companion_add_description">Fill in one source and press Send. It appears on the TV \u2014 pick up the remote and press Start Import there when you are ready.</string>
+    <string name="companion_add_description">Fill in one source and press Send. The TV validates it and starts importing automatically.</string>
     <!-- Translators: Label for the default-playlist toggle on the companion add-source page. -->
     <string name="companion_default_playlist">Default playlist</string>
     <!-- Translators: Button label on the companion add-source page to send the source to the TV. -->
@@ -381,7 +381,7 @@
     <!-- Translators: Heading on the companion success page after sending a source. The checkmark is a visual indicator. -->
     <string name="companion_saved_heading">Sent to your TV \u2713</string>
     <!-- Translators: Body text on the companion success page when a source was sent. "name" is the source name entered by the user. -->
-    <string name="companion_saved_source_body"><xliff:g id="name">%1$s</xliff:g> is now on the TV\'s Add source screen. Check the details there and press Start Import on the remote.</string>
+    <string name="companion_saved_source_body">The TV received <xliff:g id="name">%1$s</xliff:g> and started importing it automatically. You can follow progress on the TV.</string>
     <!-- Translators: Button on the companion success page to send another source. -->
     <string name="companion_saved_send_another">Send another source</string>
     <!-- Translators: Body text on the companion success page when a backup was sent. -->

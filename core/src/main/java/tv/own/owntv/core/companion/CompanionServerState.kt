@@ -7,8 +7,8 @@ import android.graphics.Bitmap
  * mobile-friendly add-source form any phone, tablet or PC on the same Wi-Fi can open.
  *
  * The QR encodes only the [Listening.urls] address; the remote device is asked for [Listening.pin] on a gate
- * page before the form is served. Submissions arrive as [CompanionPayload]s (the TV user still presses
- * Start Import — the remote browser only fills the form).
+ * page before the form is served. Submissions arrive as validated [CompanionPayload]s; the host app
+ * decides whether to import immediately or open its correction form.
  */
 sealed interface CompanionFailure {
     data object InvalidPort : CompanionFailure

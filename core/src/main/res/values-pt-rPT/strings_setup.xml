@@ -93,7 +93,7 @@
     <string name="setup_import_failed">Falha ao importar</string>
     <string name="setup_try_again_caps">Tentar novamente</string>
     <string name="setup_add_from_phone">Adicionar a partir de outro dispositivo</string>
-    <string name="setup_phone_add_description">Num telemóvel, tablet ou computador ligado à mesma rede Wi-Fi, digitalize o código QR (ou abra o URL), introduza este PIN, preencha os dados da lista de reprodução e toque em Enviar para a TV. Os respetivos dados aparecem depois aqui, prontos para importar — prima Iniciar importação com o comando.</string>
+    <string name="setup_phone_add_description">Num telemóvel, tablet ou computador ligado à mesma rede Wi-Fi, leia o código QR (ou abra o URL), introduza este PIN, preencha os dados da lista e toque em Enviar para a TV. A TV valida os dados e inicia a importação automaticamente.</string>
     <string name="setup_opening">A abrir…</string>
     <string name="setup_open_server">Abrir servidor</string>
     <string name="setup_stop_server">Parar servidor</string>
@@ -187,14 +187,14 @@
     <string name="companion_service_config_again">Enviar outros dados de ligação</string>
     <string name="companion_add_page_title">OwnTV — Adicionar origem</string>
     <string name="companion_add_heading">Adicionar uma origem</string>
-    <string name="companion_add_description">Preencha os dados de uma origem e prima Enviar. Esta aparece na TV — pegue no comando e prima Iniciar importação quando estiver tudo pronto.</string>
+    <string name="companion_add_description">Preencha os dados de uma origem e prima Enviar. A TV valida os dados e inicia a importação automaticamente.</string>
     <string name="companion_default_playlist">Lista de reprodução predefinida</string>
     <string name="companion_send_to_tv">Enviar para a TV</string>
     <string name="companion_sync_xtream_hint">O que sincronizar — Agora importa primeiro, Mais tarde sincroniza em segundo plano e Desativado nunca é obtido.</string>
     <string name="companion_sync_stalker_hint">O que sincronizar — TV em direto utiliza Agora por predefinição; Filmes/Séries utilizam Mais tarde por predefinição (o VOD do Stalker é lento).</string>
     <string name="companion_saved_page_title">OwnTV — Enviado</string>
     <string name="companion_saved_heading">Enviado para a TV ✓</string>
-    <string name="companion_saved_source_body"><xliff:g id="name">%1$s</xliff:g> encontra-se agora no ecrã Adicionar uma origem da TV. Verifique aí os dados e prima Iniciar importação com o comando.</string>
+    <string name="companion_saved_source_body">A TV recebeu <xliff:g id="name">%1$s</xliff:g> e iniciou a importação automaticamente. Pode acompanhar o progresso na TV.</string>
     <string name="companion_saved_send_another">Enviar outra origem</string>
     <string name="companion_saved_backup_body">A sua cópia de segurança encontra-se agora na TV. Pegue no comando e escolha as partes que pretende restaurar.</string>
     <string name="companion_saved_backup_link">Enviar outro ficheiro</string>

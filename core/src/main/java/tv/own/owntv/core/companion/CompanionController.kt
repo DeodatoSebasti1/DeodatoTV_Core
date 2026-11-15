@@ -18,9 +18,8 @@ import tv.own.owntv.core.i18n.LocaleStore
  * Owns the Remote companion HTTP listener for the app's lifetime. Registered as a Koin `single` so
  * the Setup and Settings screens share one server instead of each carrying duplicate networking code.
  *
- * The remote browser only fills the Add Source form; it never starts the import. Each submission is exposed two
- * ways:
- *  - [payloads] — a live event stream, used by the Remote screen to know when to hand off; and
+ * Each authenticated submission is exposed two ways:
+ *  - [payloads] — a live event stream, used by the Remote screen to start or hand off; and
  *  - [lastPayload] — the retained latest value, so the Manual form (which subscribes *after* the
  *    hand-off navigation) still sees it. A replay-0 SharedFlow alone would drop it in that window.
  *
@@ -211,8 +210,8 @@ class CompanionController(context: Context, localeStore: LocaleStore) {
      * Writes a playlist uploaded through the companion page into the app's own storage and returns
      * the payload with `server` pointing at it. Anything else passes through untouched.
      *
-     * `filesDir`, not `cacheDir`: the remote browser only *fills* the form — the TV user presses Start Import
-     * later, possibly much later, and the system may evict a cache file in between. The saved path is
+     * `filesDir`, not `cacheDir`: import starts as soon as the host receives the payload, but the saved
+     * path must also survive a failed import and a later manual correction. The saved path is
      * absolute, which is exactly what `M3uSyncer` already recognises as a local playlist.
      *
      * On a write failure the payload is returned unchanged, so the TV shows an empty URL box rather
@@ -266,7 +265,7 @@ class CompanionController(context: Context, localeStore: LocaleStore) {
         _state.value = CompanionServerState.Idle
     }
 
-    /** Clears [lastPayload] after the Manual Add Source form consumed it for pre-fill. */
+    /** Clears [lastPayload] after automatic import succeeds or the correction form consumes it. */
     fun consumePayload() {
         _lastPayload.value = null
     }

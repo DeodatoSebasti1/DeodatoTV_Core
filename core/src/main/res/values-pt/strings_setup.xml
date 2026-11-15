@@ -93,7 +93,7 @@
     <string name="setup_import_failed">Falha na importação</string>
     <string name="setup_try_again_caps">Tentar novamente</string>
     <string name="setup_add_from_phone">Adicionar de outro dispositivo</string>
-    <string name="setup_phone_add_description">Em um celular, tablet ou computador conectado à mesma rede Wi-Fi, escaneie o código QR (ou abra o URL), digite este PIN, preencha os dados da sua lista de reprodução e toque em Enviar para a TV. Os dados aparecerão aqui, prontos para importação — pressione Iniciar importação usando o controle remoto.</string>
+    <string name="setup_phone_add_description">Em um celular, tablet ou computador conectado à mesma rede Wi-Fi, escaneie o código QR (ou abra o URL), digite este PIN, preencha os dados da lista e toque em Enviar para a TV. A TV valida os dados e inicia a importação automaticamente.</string>
     <string name="setup_opening">Abrindo…</string>
     <string name="setup_open_server">Abrir servidor</string>
     <string name="setup_stop_server">Parar servidor</string>
@@ -187,14 +187,14 @@
     <string name="companion_service_config_again">Enviar outros dados de conexão</string>
     <string name="companion_add_page_title">OwnTV — Adicionar fonte</string>
     <string name="companion_add_heading">Adicionar uma fonte</string>
-    <string name="companion_add_description">Preencha os dados de uma fonte e pressione Enviar. Ela aparecerá na TV — pegue o controle remoto e pressione Iniciar importação quando estiver tudo pronto.</string>
+    <string name="companion_add_description">Preencha os dados de uma fonte e pressione Enviar. A TV valida os dados e inicia a importação automaticamente.</string>
     <string name="companion_default_playlist">Lista de reprodução padrão</string>
     <string name="companion_send_to_tv">Enviar para a TV</string>
     <string name="companion_sync_xtream_hint">O que sincronizar — Agora importa primeiro, Mais tarde sincroniza em segundo plano e Desativado nunca é baixado.</string>
     <string name="companion_sync_stalker_hint">O que sincronizar — TV ao vivo usa Agora por padrão; Filmes/Séries usam Mais tarde por padrão (o VOD do Stalker é lento).</string>
     <string name="companion_saved_page_title">OwnTV — Enviado</string>
     <string name="companion_saved_heading">Enviado para sua TV ✓</string>
-    <string name="companion_saved_source_body"><xliff:g id="name">%1$s</xliff:g> agora está na tela Adicionar fonte da TV. Confira os dados e pressione Iniciar importação no controle remoto.</string>
+    <string name="companion_saved_source_body">A TV recebeu <xliff:g id="name">%1$s</xliff:g> e iniciou a importação automaticamente. Você pode acompanhar o progresso na TV.</string>
     <string name="companion_saved_send_another">Enviar outra fonte</string>
     <string name="companion_saved_backup_body">Sua cópia de segurança agora está na TV. Pegue o controle remoto e escolha quais partes deseja restaurar.</string>
     <string name="companion_saved_backup_link">Enviar outro arquivo</string>
