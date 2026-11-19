@@ -511,4 +511,20 @@
     <string name="setup_hide_new_categories">Hide new categories by default</string>
     <!-- Translators: Description of the profile-wide new-category visibility toggle. Customize is the name of the customization screen. -->
     <string name="setup_hide_new_categories_description">Profile-wide: categories that appear on future syncs start hidden. See them anytime in Customize.</string>
+    <!-- Translators: Browser title for the PIN-protected source manager opened from a phone. -->
+    <string name="companion_source_manager_page_title">Manage sources</string>
+    <string name="companion_source_manager_heading">Your TV sources</string>
+    <string name="companion_source_manager_description">Manage this TV from your phone. Login details and playlist addresses never leave the TV.</string>
+    <string name="companion_source_manager_add">Add source</string>
+    <string name="companion_source_manager_empty">No sources are configured yet.</string>
+    <string name="companion_source_manager_default">Default</string>
+    <string name="companion_source_manager_resync">Sync now</string>
+    <string name="companion_source_manager_make_default">Make default</string>
+    <string name="companion_source_manager_delete">Delete</string>
+    <string name="companion_source_manager_delete_confirm">Delete this source from the TV? This cannot be undone.</string>
+    <string name="companion_source_manager_action_accepted">The TV accepted the action. This list will refresh automatically.</string>
+    <string name="companion_source_manager_refresh">Refresh sources</string>
+    <string name="companion_source_manager_local_backup">Local backup</string>
+    <string name="companion_source_manager_tv_title">Manage on phone</string>
+    <string name="companion_source_manager_tv_description">Scan the QR code to add, sync, set as default or delete sources from your phone.</string>
 </resources>

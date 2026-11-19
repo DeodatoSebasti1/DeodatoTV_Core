@@ -7,6 +7,7 @@ package tv.own.owntv.core.companion
  *  - [BACKUP_DOWNLOAD] — a download page the remote device uses to fetch a backup the TV just exported;
  *  - [IMAGE_UPLOAD] — an upload page the remote device uses to send a background image to the TV;
  *  - [TMDB_KEY] — a one-field page the remote device uses to send a personal TMDB API key to the TV.
+ *  - [SOURCE_MANAGER] — a credential-free source list with add, resync, default and delete actions;
  *  - [LOCAL_SYNC] — the only mode with no web page behind it: the other OwnTV app on the same Wi-Fi
  *    talks to it directly. It accepts a backup upload AND serves this device's own export, because a
  *    merge sends and receives in one session, and it answers `/sync/hello` and `/sync/pair` so the
@@ -17,7 +18,7 @@ package tv.own.owntv.core.companion
  *
  * One server, one PIN gate; the mode only changes which page is served and which endpoint is accepted.
  */
-enum class CompanionMode { ADD_SOURCE, BACKUP_RESTORE, BACKUP_DOWNLOAD, IMAGE_UPLOAD, TMDB_KEY, TMDB_CONFIG, OPEN_SUBTITLES_CONFIG, LOCAL_SYNC }
+enum class CompanionMode { ADD_SOURCE, SOURCE_MANAGER, BACKUP_RESTORE, BACKUP_DOWNLOAD, IMAGE_UPLOAD, TMDB_KEY, TMDB_CONFIG, OPEN_SUBTITLES_CONFIG, LOCAL_SYNC }
 
 /**
  * A service setup handed over from the remote browser.

@@ -3,6 +3,15 @@
 Core is versioned independently of the apps. A core version number never lines up with an OwnTV TV
 app `v4.x` release, and the two must not be confused. Tags here are prefixed `core-`.
 
+## core-1.0.30 — 2026-11-19
+
+Adds a PIN-protected source manager for browsers on the same local network. It exposes only source
+name, type and default status — never playlist URLs, usernames, passwords, MAC addresses or other
+credentials — and supports adding, re-syncing, setting the default and deleting an exact source.
+Every action is checked against a fresh source snapshot before it reaches the app.
+
+No Room schema, migration, entity, player, EPG, Xtream, Stalker or M3U format change.
+
 ## core-1.0.29 — 2026-11-15
 
 Remote add-source now starts the authenticated submission automatically on the TV. The QR/PIN

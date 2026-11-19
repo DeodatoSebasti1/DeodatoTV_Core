@@ -39,6 +39,9 @@ class CompanionController(context: Context, localeStore: LocaleStore) {
     private val _lastPayload = MutableStateFlow<CompanionPayload?>(null)
     val lastPayload: StateFlow<CompanionPayload?> = _lastPayload.asStateFlow()
 
+    private val _sourceActions = MutableSharedFlow<CompanionSourceAction>(extraBufferCapacity = 8)
+    val sourceActions: SharedFlow<CompanionSourceAction> = _sourceActions.asSharedFlow()
+
     /** Backup files uploaded from the remote device in [startForBackupRestore] mode, saved to cache and emitted here. */
     private val _backups = MutableSharedFlow<File>(extraBufferCapacity = 4)
     val backups: SharedFlow<File> = _backups.asSharedFlow()
@@ -74,6 +77,13 @@ class CompanionController(context: Context, localeStore: LocaleStore) {
 
     /** Starts the add-source companion server (the original Remote add-source flow). */
     fun start(port: Int) = startInternal(port, CompanionMode.ADD_SOURCE)
+
+    /** Starts the PIN-protected, credential-free source manager served to another LAN device. */
+    fun startForSourceManager(port: Int, sources: () -> List<CompanionSourceSummary>) = startInternal(
+        port = port,
+        mode = CompanionMode.SOURCE_MANAGER,
+        sourceSummaries = sources,
+    )
 
     /** Starts the companion server in backup-restore mode: the remote device uploads a backup JSON, emitted on [backups]. */
     fun startForBackupRestore(port: Int) = startInternal(port, CompanionMode.BACKUP_RESTORE)
@@ -122,6 +132,7 @@ class CompanionController(context: Context, localeStore: LocaleStore) {
         syncInfo: () -> String = { "{}" },
         onPair: (name: String, address: String) -> String? = { _, _ -> null },
         pairedSecrets: () -> Set<String> = { emptySet() },
+        sourceSummaries: () -> List<CompanionSourceSummary> = { emptyList() },
     ) {
         if (port !in 1..65535) {
             _state.value = CompanionServerState.Failed(CompanionFailure.InvalidPort)
@@ -159,6 +170,8 @@ class CompanionController(context: Context, localeStore: LocaleStore) {
                 syncInfo = syncInfo,
                 onPair = onPair,
                 pairedSecrets = pairedSecrets,
+                sourceSummaries = sourceSummaries,
+                onSourceAction = { action -> _sourceActions.tryEmit(action) },
                 onLocked = {
                     // The server has already stopped itself; just reflect it on the TV so the user
                     // knows why the link went away and that restarting gives them a new PIN.

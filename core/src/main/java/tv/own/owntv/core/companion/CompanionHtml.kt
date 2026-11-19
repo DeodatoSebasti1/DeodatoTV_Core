@@ -65,6 +65,18 @@ internal object CompanionHtml {
       .panel.active{display:grid; gap:14px}
       button.go{border:0; border-radius:12px; padding:15px 16px; background:var(--accent);
         color:var(--accent-ink); font-weight:700; font-size:16px; cursor:pointer; margin-top:4px}
+      .toolbar{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:18px}
+      .toolbar a,.action{display:inline-block; border:1px solid var(--line); border-radius:11px; padding:11px 13px;
+        background:var(--card-2); color:var(--text); font:600 14px inherit; text-decoration:none; cursor:pointer}
+      .source-list{display:grid; gap:12px}
+      .source{border:1px solid var(--line); border-radius:15px; padding:16px; background:var(--card-2)}
+      .source-head{display:flex; align-items:flex-start; justify-content:space-between; gap:12px}
+      .source h2{font-size:18px; margin:0 0 5px; overflow-wrap:anywhere}
+      .source-meta{font-size:13px; color:var(--muted); margin:0}
+      .badge{border-radius:999px; padding:5px 9px; background:#1E2E0C; color:#EAFFD0; font-size:12px; white-space:nowrap}
+      .actions{display:flex; flex-wrap:wrap; gap:8px; margin-top:13px}
+      .actions form{display:block}
+      .action.danger{color:#ffaaa3; border-color:#743c37}
       .pin{font-family:'Lora',Georgia,'Noto Sans',system-ui,sans-serif; font-size:34px; letter-spacing:12px; text-align:center;
         padding:16px; caret-color:var(--accent)}
       .err{color:var(--danger); font-size:14px; margin:0 0 12px}
@@ -140,6 +152,20 @@ internal object CompanionHtml {
         }
         val defaultPlaylistLabel = s(R.string.companion_default_playlist)
         val sendToTv = s(R.string.companion_send_to_tv)
+
+        val managerTitle = s(R.string.companion_source_manager_page_title)
+        val managerHeading = s(R.string.companion_source_manager_heading)
+        val managerDescription = s(R.string.companion_source_manager_description)
+        val managerAdd = s(R.string.companion_source_manager_add)
+        val managerEmpty = s(R.string.companion_source_manager_empty)
+        val managerDefault = s(R.string.companion_source_manager_default)
+        val managerResync = s(R.string.companion_source_manager_resync)
+        val managerMakeDefault = s(R.string.companion_source_manager_make_default)
+        val managerDelete = s(R.string.companion_source_manager_delete)
+        val managerDeleteConfirm = s(R.string.companion_source_manager_delete_confirm)
+        val managerActionAccepted = s(R.string.companion_source_manager_action_accepted)
+        val managerRefresh = s(R.string.companion_source_manager_refresh)
+        val localBackup = s(R.string.companion_source_manager_local_backup)
 
         val savedTitle = s(R.string.companion_saved_page_title)
         val savedHeading = s(R.string.companion_saved_heading)
@@ -345,6 +371,79 @@ internal object CompanionHtml {
               <p>${body.h()}</p>
             </div>
         """.trimIndent())
+    }
+
+    /** Credential-free source administration page. Only names, types and the default marker leave the TV. */
+    fun sourceManagerPage(
+        context: Context,
+        pin: String,
+        sources: List<CompanionSourceSummary>,
+    ): String {
+        val c = Copy(context)
+        val cards = if (sources.isEmpty()) {
+            "<p>${c.managerEmpty.h()}</p>"
+        } else {
+            sources.joinToString("\n") { source ->
+                val type = when (source.type) {
+                    SourceType.XTREAM -> c.xtream
+                    SourceType.M3U -> c.m3u
+                    SourceType.STALKER -> c.stalker
+                    SourceType.LOCAL_BACKUP -> c.localBackup
+                }
+                val defaultBadge = if (source.isDefault) "<span class=\"badge\">${c.managerDefault.h()}</span>" else ""
+                val makeDefault = if (source.isDefault) "" else actionForm(
+                    pin = pin,
+                    sourceId = source.id,
+                    action = CompanionSourceActionKind.SET_DEFAULT,
+                    label = c.managerMakeDefault,
+                )
+                """
+                    <div class="source">
+                      <div class="source-head"><div><h2>${source.name.h()}</h2><p class="source-meta">${type.h()}</p></div>$defaultBadge</div>
+                      <div class="actions">
+                        ${actionForm(pin, source.id, CompanionSourceActionKind.RESYNC, c.managerResync)}
+                        $makeDefault
+                        ${actionForm(pin, source.id, CompanionSourceActionKind.DELETE, c.managerDelete, c.managerDeleteConfirm)}
+                      </div>
+                    </div>
+                """.trimIndent()
+            }
+        }
+        return page(context, c.managerTitle, """
+            <div class="card">
+              <div class="toolbar"><div><h1>${c.managerHeading.h()}</h1></div><a href="/sources/add?pin=$pin">${c.managerAdd.h()}</a></div>
+              <p>${c.managerDescription.h()}</p>
+              <div class="source-list">$cards</div>
+            </div>
+        """.trimIndent())
+    }
+
+    fun sourceActionAcceptedPage(context: Context, pin: String): String {
+        val c = Copy(context)
+        return page(context, c.savedTitle, """
+            <div class="card"><h1>${c.savedHeading.h()}</h1><p>${c.managerActionAccepted.h()}</p>
+              <p><a href="/?pin=$pin">${c.managerRefresh.h()}</a></p>
+            </div>
+            <script>setTimeout(function(){location.href='/?pin=$pin'},1200);</script>
+        """.trimIndent())
+    }
+
+    private fun actionForm(
+        pin: String,
+        sourceId: Long,
+        action: CompanionSourceActionKind,
+        label: String,
+        confirmation: String? = null,
+    ): String {
+        val confirm = confirmation?.let { " onsubmit=\"return confirm(${it.js().h()})\"" }.orEmpty()
+        val danger = if (action == CompanionSourceActionKind.DELETE) " danger" else ""
+        return """
+            <form method="post" action="/sources/action?pin=$pin"$confirm>
+              <input type="hidden" name="sourceId" value="$sourceId">
+              <input type="hidden" name="action" value="${action.wireName}">
+              <button class="action$danger" type="submit">${label.h()}</button>
+            </form>
+        """.trimIndent()
     }
 
     fun backupUploadPage(context: Context, pin: String): String {

@@ -83,6 +83,8 @@ class CompanionHttpServer(
     @Volatile private var onImage: (bytes: ByteArray, extension: String) -> Unit = { _, _ -> }
     @Volatile private var onTmdbKey: (String) -> Unit = {}
     @Volatile private var onServiceConfig: (CompanionServiceConfig) -> Unit = {}
+    @Volatile private var sourceSummaries: () -> List<CompanionSourceSummary> = { emptyList() }
+    @Volatile private var onSourceAction: (CompanionSourceAction) -> Unit = {}
 
     /** The backup file served at `/backup.json` in [CompanionMode.BACKUP_DOWNLOAD] mode. */
     @Volatile private var downloadFile: File? = null
@@ -118,6 +120,8 @@ class CompanionHttpServer(
         syncInfo: () -> String = { "{}" },
         onPair: (name: String, address: String) -> String? = { _, _ -> null },
         pairedSecrets: () -> Set<String> = { emptySet() },
+        sourceSummaries: () -> List<CompanionSourceSummary> = { emptyList() },
+        onSourceAction: (CompanionSourceAction) -> Unit = {},
         onLocked: () -> Unit = {},
     ): List<String> {
         stop()
@@ -135,6 +139,8 @@ class CompanionHttpServer(
         this.syncInfo = syncInfo
         this.onPair = onPair
         this.pairedSecrets = pairedSecrets
+        this.sourceSummaries = sourceSummaries
+        this.onSourceAction = onSourceAction
         val socket = ServerSocket()
         socket.reuseAddress = true
         socket.bind(InetSocketAddress(port))
@@ -150,6 +156,9 @@ class CompanionHttpServer(
         onPayload = {}
         onBackup = {}
         onImage = { _, _ -> }
+        onServiceConfig = {}
+        sourceSummaries = { emptyList() }
+        onSourceAction = {}
         onLocked = {}
         downloadFile = null
         syncInfo = { "{}" }
@@ -375,8 +384,39 @@ class CompanionHttpServer(
                 return sendHtml(socket, 200, CompanionHtml.serviceConfigSentPage(pageContext, pin))
             }
 
+            // The source manager never serializes credentials. It serves only a fresh summary from
+            // the host and emits an authenticated, ID-scoped command back to the app.
+            if (method == "GET" && path == "/sources/add") {
+                if (mode != CompanionMode.SOURCE_MANAGER) return sendText(socket, 404, localized(R.string.companion_error_not_found))
+                if (!requirePin(queryPin.ifBlank { headers["x-companion-pin"].orEmpty() })) {
+                    return sendText(socket, 401, localized(R.string.companion_error_unauthorized))
+                }
+                return sendHtml(socket, 200, CompanionHtml.formPage(pageContext, pin))
+            }
+
+            if (method == "POST" && path == "/sources/action") {
+                if (mode != CompanionMode.SOURCE_MANAGER) return sendText(socket, 404, localized(R.string.companion_error_not_found))
+                if (!requirePin(queryPin.ifBlank { headers["x-companion-pin"].orEmpty() })) {
+                    return sendText(socket, 401, localized(R.string.companion_error_unauthorized))
+                }
+                val body = CompanionHttpProtocol.readBody(input, headers, CompanionHttpProtocol.maxBodyBytes(path))
+                    ?: return sendText(socket, 413, localized(R.string.companion_error_body_too_large))
+                val action = companionSourceAction(CompanionHttpProtocol.parseQuery(body))
+                    ?: return sendText(socket, 400, localized(R.string.companion_error_bad_request))
+                // Re-check the live snapshot so a stale browser cannot act on an ID that was deleted
+                // or replaced after the page was rendered.
+                if (sourceSummaries().none { it.id == action.sourceId }) {
+                    return sendText(socket, 404, localized(R.string.companion_error_not_found))
+                }
+                onSourceAction(action)
+                return sendHtml(socket, 200, CompanionHtml.sourceActionAcceptedPage(pageContext, pin))
+            }
+
             // Source submissions — PIN required (query or header), else 401.
             if (method == "POST" && (path == "/xtream" || path == "/m3u" || path == "/stalker")) {
+                if (mode != CompanionMode.ADD_SOURCE && mode != CompanionMode.SOURCE_MANAGER) {
+                    return sendText(socket, 404, localized(R.string.companion_error_not_found))
+                }
                 val headerPin = headers["x-companion-pin"].orEmpty()
                 if (!requirePin(queryPin.ifBlank { headerPin })) return sendText(socket, 401, localized(R.string.companion_error_unauthorized))
                 val fallback = when (path) {
@@ -455,6 +495,7 @@ class CompanionHttpServer(
     /** The page served after a valid PIN, for the current [mode]. */
     private fun authedPage(context: Context): String = when (mode) {
         CompanionMode.ADD_SOURCE -> CompanionHtml.formPage(context, pin)
+        CompanionMode.SOURCE_MANAGER -> CompanionHtml.sourceManagerPage(context, pin, sourceSummaries())
         CompanionMode.BACKUP_RESTORE -> CompanionHtml.backupUploadPage(context, pin)
         CompanionMode.BACKUP_DOWNLOAD -> CompanionHtml.backupDownloadPage(context, pin)
         CompanionMode.IMAGE_UPLOAD -> CompanionHtml.imageUploadPage(context, pin)

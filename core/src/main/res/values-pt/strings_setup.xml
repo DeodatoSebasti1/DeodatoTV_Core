@@ -263,4 +263,19 @@
     <string name="companion_error_pair_failed">Não foi possível parear com este dispositivo.</string>
     <string name="local_sync_browser_title">Sincronização local do OwnTV</string>
     <string name="local_sync_browser_body">Este endereço é para o app OwnTV no seu outro dispositivo. Abra a Sincronização local lá e escolha este dispositivo na lista.</string>
+    <string name="companion_source_manager_page_title">Gerenciar fontes</string>
+    <string name="companion_source_manager_heading">Fontes da sua TV</string>
+    <string name="companion_source_manager_description">Gerencie esta TV pelo celular. Dados de acesso e endereços das listas nunca saem da TV.</string>
+    <string name="companion_source_manager_add">Adicionar fonte</string>
+    <string name="companion_source_manager_empty">Ainda não há fontes configuradas.</string>
+    <string name="companion_source_manager_default">Padrão</string>
+    <string name="companion_source_manager_resync">Sincronizar agora</string>
+    <string name="companion_source_manager_make_default">Definir como padrão</string>
+    <string name="companion_source_manager_delete">Excluir</string>
+    <string name="companion_source_manager_delete_confirm">Excluir esta fonte da TV? Esta ação não pode ser desfeita.</string>
+    <string name="companion_source_manager_action_accepted">A TV aceitou a ação. Esta lista será atualizada automaticamente.</string>
+    <string name="companion_source_manager_refresh">Atualizar fontes</string>
+    <string name="companion_source_manager_local_backup">Backup local</string>
+    <string name="companion_source_manager_tv_title">Gerenciar pelo celular</string>
+    <string name="companion_source_manager_tv_description">Escaneie o código QR para adicionar, sincronizar, definir como padrão ou excluir fontes pelo celular.</string>
 </resources>
