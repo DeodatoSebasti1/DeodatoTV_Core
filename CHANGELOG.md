@@ -3,6 +3,14 @@
 Core is versioned independently of the apps. A core version number never lines up with an OwnTV TV
 app `v4.x` release, and the two must not be confused. Tags here are prefixed `core-`.
 
+## core-1.0.31 — 2026-11-19
+
+Same source-manager functionality as 1.0.30, with the generated language-coverage metadata refreshed
+after the new companion strings were added. This keeps the release's i18n validation green and the
+language picker percentages accurate.
+
+No Room schema or runtime data change.
+
 ## core-1.0.30 — 2026-11-19
 
 Adds a PIN-protected source manager for browsers on the same local network. It exposes only source
